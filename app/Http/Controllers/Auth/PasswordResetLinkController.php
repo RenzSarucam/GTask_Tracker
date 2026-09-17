@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -25,6 +27,10 @@ class PasswordResetLinkController extends Controller
     /**
      * Handle an incoming password reset link request.
      *
+     * Always responds with the same generic status regardless of whether the
+     * email belongs to an account, to avoid leaking which emails are
+     * registered (user enumeration).
+     *
      * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
@@ -33,19 +39,21 @@ class PasswordResetLinkController extends Controller
             'email' => 'required|email',
         ]);
 
-        // We will send the password reset link to this user. Once we have attempted
-        // to send the link, we will examine the response then see the message we
-        // need to show to the user. Finally, we'll send out a proper response.
-        $status = Password::sendResetLink(
-            $request->only('email')
-        );
+        $throttleKey = 'password-reset|'.Str::lower($request->string('email')).'|'.$request->ip();
 
-        if ($status == Password::RESET_LINK_SENT) {
-            return back()->with('status', __($status));
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
+            throw ValidationException::withMessages([
+                'email' => trans('auth.throttle', [
+                    'seconds' => RateLimiter::availableIn($throttleKey),
+                    'minutes' => ceil(RateLimiter::availableIn($throttleKey) / 60),
+                ]),
+            ]);
         }
 
-        throw ValidationException::withMessages([
-            'email' => [trans($status)],
-        ]);
+        RateLimiter::hit($throttleKey, 60);
+
+        Password::sendResetLink($request->only('email'));
+
+        return back()->with('status', __('passwords.sent'));
     }
 }

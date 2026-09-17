@@ -2,6 +2,7 @@ import { Link } from '@inertiajs/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ListChecks } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import TaskCardMockup from './TaskCardMockup';
 
 const TAGLINES = [
     'Organize Work, Deliver Together',
@@ -35,19 +36,47 @@ export default function ShowcasePanel() {
                 />
 
                 <motion.div
-                    animate={{ y: [0, -18, 0], x: [0, 10, 0] }}
-                    transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
-                    className="absolute left-[12%] top-[18%] h-40 w-40 rounded-[28px] border border-white/10 bg-white/5 backdrop-blur-sm"
-                />
-                <motion.div
                     animate={{ y: [0, 22, 0], x: [0, -14, 0] }}
                     transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
-                    className="absolute right-[14%] top-[38%] h-24 w-24 rounded-full border border-white/10 bg-accent/10 backdrop-blur-sm"
+                    className="absolute right-[10%] top-[14%] h-20 w-20 rounded-full border border-white/10 bg-accent/10 backdrop-blur-sm"
                 />
                 <motion.div
                     animate={{ y: [0, -14, 0], x: [0, 16, 0] }}
                     transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-                    className="absolute bottom-[22%] left-[20%] h-28 w-28 rounded-[24px] border border-white/10 bg-primary/10 backdrop-blur-sm"
+                    className="absolute bottom-[26%] right-[6%] h-16 w-16 rounded-[20px] border border-white/10 bg-primary/10 backdrop-blur-sm"
+                />
+
+                <TaskCardMockup
+                    title="Redesign employee onboarding flow"
+                    tag="ICT/R&D"
+                    priority="high"
+                    status="progress"
+                    progress={65}
+                    avatarColor="bg-primary"
+                    floatDelay={0}
+                    floatDuration={8}
+                    className="absolute left-[8%] top-[16%] -rotate-3"
+                />
+                <TaskCardMockup
+                    title="QA pass on POS sync module"
+                    tag="Systems"
+                    priority="medium"
+                    status="todo"
+                    avatarColor="bg-accent"
+                    floatDelay={0.8}
+                    floatDuration={9.5}
+                    className="absolute right-[4%] top-[42%] rotate-2"
+                />
+                <TaskCardMockup
+                    title="Deploy monthly sales report"
+                    tag="Reports"
+                    priority="low"
+                    status="done"
+                    progress={100}
+                    avatarColor="bg-success"
+                    floatDelay={1.4}
+                    floatDuration={10}
+                    className="absolute bottom-[24%] left-[14%] rotate-1"
                 />
             </div>
 
@@ -62,14 +91,6 @@ export default function ShowcasePanel() {
                 <span className="text-base font-semibold tracking-tight">
                     GAISANO Task Tracker
                 </span>
-            </Link>
-
-            {/* Back to website */}
-            <Link
-                href="/"
-                className="absolute right-8 top-8 z-10 rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-xs font-medium text-text backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/60 hover:shadow-glow"
-            >
-                Back to website
             </Link>
 
             {/* Tagline carousel */}
