@@ -5,6 +5,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TaskController;
+use App\Http\Controllers\TeamController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -23,7 +25,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/tasks/{task}/move', [TaskController::class, 'move'])->name('tasks.move');
 
     Route::get('/calendar', fn () => Inertia::render('Calendar'))->name('calendar');
-    Route::get('/team', fn () => Inertia::render('Team'))->name('team');
+    Route::get('/team', TeamController::class)->name('team');
+    Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::get('/reports', fn () => Inertia::render('Reports'))->name('reports');
     Route::get('/settings', fn () => Inertia::render('Settings'))->name('settings');
 });
