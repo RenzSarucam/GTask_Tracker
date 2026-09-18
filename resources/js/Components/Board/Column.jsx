@@ -1,7 +1,6 @@
 import TaskCard from '@/Components/Board/TaskCard';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { Plus } from 'lucide-react';
 
 const DOT_COLORS = {
     todo: 'bg-text-muted',
@@ -9,7 +8,7 @@ const DOT_COLORS = {
     done: 'bg-success',
 };
 
-export default function Column({ id, title, tasks, canAddTask, onAddTask, onTaskClick }) {
+export default function Column({ id, title, tasks, onTaskClick }) {
     const { setNodeRef, isOver } = useDroppable({ id });
 
     return (
@@ -26,7 +25,7 @@ export default function Column({ id, title, tasks, canAddTask, onAddTask, onTask
 
             <div
                 ref={setNodeRef}
-                className={`min-h-[120px] flex-1 space-y-2.5 p-3 transition-colors duration-150 ${
+                className={`min-h-[120px] flex-1 space-y-2.5 p-3 pb-4 transition-colors duration-150 ${
                     isOver ? 'bg-primary/5' : ''
                 }`}
             >
@@ -41,17 +40,6 @@ export default function Column({ id, title, tasks, canAddTask, onAddTask, onTask
                     ))}
                 </SortableContext>
             </div>
-
-            {canAddTask && (
-                <button
-                    type="button"
-                    onClick={onAddTask}
-                    className="flex items-center justify-center gap-1.5 border-t border-border px-4 py-3 text-sm font-medium text-text-muted transition-colors duration-150 hover:bg-surface-2 hover:text-text"
-                >
-                    <Plus className="h-4 w-4" />
-                    Add task
-                </button>
-            )}
         </div>
     );
 }

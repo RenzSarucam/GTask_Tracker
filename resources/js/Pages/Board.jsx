@@ -2,6 +2,7 @@ import Column from '@/Components/Board/Column';
 import TaskCard from '@/Components/Board/TaskCard';
 import ConfirmDialog from '@/Components/ConfirmDialog';
 import TaskFormModal from '@/Components/Tasks/TaskFormModal';
+import { useRegisterTopbar } from '@/Contexts/TopbarContext';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
 import {
@@ -124,6 +125,10 @@ export default function Board({ columns: initialColumns, canCreate, departments,
         setModalState((prev) => ({ ...prev, open: false }));
     }
 
+    useRegisterTopbar({
+        onNewTask: canCreate ? () => openCreate('todo') : undefined,
+    });
+
     function confirmDelete() {
         setDeleting(true);
         router.delete(route('tasks.destroy', deleteTarget.id), {
@@ -154,8 +159,6 @@ export default function Board({ columns: initialColumns, canCreate, departments,
                             id={status}
                             title={COLUMN_TITLES[status]}
                             tasks={columns[status] ?? []}
-                            canAddTask={canCreate}
-                            onAddTask={() => openCreate(status)}
                             onTaskClick={openEdit}
                         />
                     ))}

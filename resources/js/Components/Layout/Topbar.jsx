@@ -53,9 +53,9 @@ export default function Topbar({
                         <button
                             type="button"
                             onClick={onFilterClick}
-                            className="inline-flex items-center gap-1.5 rounded-input border border-border bg-surface-2 px-3 py-2 text-sm font-medium text-text-muted transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:text-text"
+                            className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-input border border-border bg-surface-2 px-3 py-2 text-sm font-medium text-text-muted transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/50 hover:text-text"
                         >
-                            <SlidersHorizontal className="h-4 w-4" />
+                            <SlidersHorizontal className="h-4 w-4 shrink-0" />
                             <span className="hidden sm:inline">Filter</span>
                         </button>
                     )}
@@ -90,8 +90,12 @@ export default function Topbar({
                     )}
 
                     {onNewTask && (
-                        <Button variant="primary" onClick={onNewTask} className="px-4 py-2">
-                            <Plus className="h-4 w-4" />
+                        <Button
+                            variant="primary"
+                            onClick={onNewTask}
+                            className="shrink-0 whitespace-nowrap px-4 py-2"
+                        >
+                            <Plus className="h-4 w-4 shrink-0" />
                             <span className="hidden sm:inline">New Task</span>
                         </Button>
                     )}

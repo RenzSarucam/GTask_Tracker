@@ -22,13 +22,13 @@ function formatDue(dateStr, isOverdue) {
     return `Due ${date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
 }
 
-export default function DueSoonList({ items }) {
+export default function DueSoonList({ items, title = 'My tasks due soon', viewAllRoute = 'my-tasks' }) {
     return (
         <div className="rounded-card border border-border bg-surface p-5">
             <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-text">My tasks due soon</h2>
+                <h2 className="text-sm font-semibold text-text">{title}</h2>
                 <Link
-                    href={route('my-tasks')}
+                    href={route(viewAllRoute)}
                     className="text-xs font-medium text-primary hover:text-primary-hover"
                 >
                     View all

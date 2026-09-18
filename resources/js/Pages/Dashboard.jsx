@@ -2,11 +2,14 @@ import DueSoonList from '@/Components/Dashboard/DueSoonList';
 import RecentActivity from '@/Components/Dashboard/RecentActivity';
 import StatCard from '@/Components/Dashboard/StatCard';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Clock, ListChecks, TriangleAlert } from 'lucide-react';
 
 export default function Dashboard({ stats, dueSoon, recentActivity }) {
+    const { auth } = usePage().props;
+    const isStaff = auth.user.role === 'staff';
+
     const cards = [
         {
             key: 'total',
@@ -58,7 +61,11 @@ export default function Dashboard({ stats, dueSoon, recentActivity }) {
             </motion.div>
 
             <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-                <DueSoonList items={dueSoon} />
+                <DueSoonList
+                    items={dueSoon}
+                    title={isStaff ? 'My tasks due soon' : 'Team tasks due soon'}
+                    viewAllRoute={isStaff ? 'my-tasks' : 'board'}
+                />
                 <RecentActivity items={recentActivity} />
             </div>
         </>

@@ -1,18 +1,27 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 
-const TopbarContext = createContext(null);
+// Split into two contexts on purpose. useRegisterTopbar (called by pages)
+// only needs the setter — if it consumed the same context that carries the
+// `actions` value, calling setActions would change that context's value,
+// re-render every consumer (including the page itself), whose effect would
+// call setActions again: an infinite render loop.
+const TopbarActionsContext = createContext({});
+const TopbarSetterContext = createContext(null);
 
 export function TopbarProvider({ children }) {
     const [actions, setActions] = useState({});
 
     return (
-        <TopbarContext.Provider value={{ actions, setActions }}>{children}</TopbarContext.Provider>
+        <TopbarSetterContext.Provider value={setActions}>
+            <TopbarActionsContext.Provider value={actions}>
+                {children}
+            </TopbarActionsContext.Provider>
+        </TopbarSetterContext.Provider>
     );
 }
 
 export function useTopbarActions() {
-    const ctx = useContext(TopbarContext);
-    return ctx?.actions ?? {};
+    return useContext(TopbarActionsContext);
 }
 
 /**
@@ -22,14 +31,15 @@ export function useTopbarActions() {
  * hook access to page state.
  */
 export function useRegisterTopbar(config) {
-    const ctx = useContext(TopbarContext);
+    const setActions = useContext(TopbarSetterContext);
 
     // Re-registers on every render (functions/values are typically inline
-    // at the call site, so identity-based deps would be unreliable). Cheap:
-    // it only updates state one level up in AuthenticatedLayout.
+    // at the call site, so identity-based deps would be unreliable). Safe
+    // here because the setter's identity is stable, so this page itself
+    // never re-renders as a result.
     useEffect(() => {
-        ctx?.setActions(config);
+        setActions?.(config);
     });
 
-    useEffect(() => () => ctx?.setActions({}), []);
+    useEffect(() => () => setActions?.({}), [setActions]);
 }
