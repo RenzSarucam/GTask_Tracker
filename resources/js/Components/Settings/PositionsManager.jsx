@@ -21,7 +21,7 @@ function AddDepartmentForm() {
                 <Building2 className="h-4 w-4 text-text-muted" />
                 <h3 className="text-sm font-semibold text-text">New department</h3>
             </div>
-            <form onSubmit={submit} className="mt-3 flex max-w-md gap-2">
+            <form onSubmit={submit} className="mt-3 flex max-w-md items-start gap-2">
                 <div className="flex-1">
                     <input
                         type="text"
@@ -60,7 +60,7 @@ function AddPositionForm({ departmentId }) {
     }
 
     return (
-        <form onSubmit={submit} className="mt-3 flex gap-2">
+        <form onSubmit={submit} className="mt-3 flex items-start gap-2">
             <div className="flex-1">
                 <input
                     type="text"
