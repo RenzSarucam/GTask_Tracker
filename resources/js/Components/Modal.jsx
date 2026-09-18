@@ -54,7 +54,7 @@ export default function Modal({
                     leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                 >
                     <DialogPanel
-                        className={`mb-6 transform overflow-hidden rounded-card border border-border bg-surface shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] transition-all sm:mx-auto sm:w-full ${maxWidthClass}`}
+                        className={`mb-6 max-h-[85vh] transform overflow-y-auto rounded-card border border-border bg-surface shadow-[0_20px_60px_-20px_rgba(0,0,0,0.7)] transition-all sm:mx-auto sm:w-full ${maxWidthClass}`}
                     >
                         {children}
                     </DialogPanel>
