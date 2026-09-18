@@ -1,8 +1,8 @@
 import ConfirmDialog from '@/Components/ConfirmDialog';
 import { router, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Building2, Plus, X } from 'lucide-react';
-import { useState } from 'react';
+import { Building2, Plus, Search, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
 function AddDepartmentForm() {
     const { data, setData, post, processing, errors, reset } = useForm({ name: '' });
@@ -84,8 +84,20 @@ function AddPositionForm({ departmentId }) {
 }
 
 export default function PositionsManager({ departments }) {
+    const [search, setSearch] = useState('');
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [deleting, setDeleting] = useState(false);
+
+    const filteredDepartments = useMemo(() => {
+        const query = search.trim().toLowerCase();
+        if (!query) return departments;
+
+        return departments.filter(
+            (department) =>
+                department.name.toLowerCase().includes(query) ||
+                department.positions.some((p) => p.name.toLowerCase().includes(query)),
+        );
+    }, [departments, search]);
 
     function confirmDelete() {
         setDeleting(true);
@@ -102,44 +114,61 @@ export default function PositionsManager({ departments }) {
         <div>
             <AddDepartmentForm />
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                {departments.map((department, i) => (
-                <motion.div
-                    key={department.id}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05, duration: 0.25 }}
-                    className="rounded-card border border-border bg-surface p-5"
-                >
-                    <h3 className="text-sm font-semibold text-text">{department.name}</h3>
-
-                    {department.positions.length === 0 ? (
-                        <p className="mt-2 text-xs text-text-muted">No positions yet.</p>
-                    ) : (
-                        <div className="mt-3 flex flex-wrap gap-2">
-                            {department.positions.map((position) => (
-                                <span
-                                    key={position.id}
-                                    className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 py-1 pl-3 pr-1.5 text-xs font-medium text-text"
-                                >
-                                    {position.name}
-                                    <button
-                                        type="button"
-                                        onClick={() => setDeleteTarget(position)}
-                                        className="rounded-full p-0.5 text-text-muted transition-colors hover:bg-danger/10 hover:text-danger"
-                                        aria-label={`Remove ${position.name}`}
-                                    >
-                                        <X className="h-3 w-3" />
-                                    </button>
-                                </span>
-                            ))}
-                        </div>
-                    )}
-
-                    <AddPositionForm departmentId={department.id} />
-                </motion.div>
-                ))}
+            <div className="relative mb-4 max-w-sm">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-text-muted" />
+                <input
+                    type="text"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Search departments or positions..."
+                    className="w-full rounded-input border border-border bg-surface-2 py-2 pl-9 pr-3 text-sm text-text placeholder-text-muted transition-all duration-200 focus:border-primary focus:shadow-glow focus:outline-none"
+                />
             </div>
+
+            {filteredDepartments.length === 0 ? (
+                <p className="rounded-card border border-dashed border-border bg-surface p-5 text-sm text-text-muted">
+                    No departments or positions match &quot;{search}&quot;.
+                </p>
+            ) : (
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {filteredDepartments.map((department, i) => (
+                        <motion.div
+                            key={department.id}
+                            initial={{ opacity: 0, y: 12 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.05, duration: 0.25 }}
+                            className="rounded-card border border-border bg-surface p-5"
+                        >
+                            <h3 className="text-sm font-semibold text-text">{department.name}</h3>
+
+                            {department.positions.length === 0 ? (
+                                <p className="mt-2 text-xs text-text-muted">No positions yet.</p>
+                            ) : (
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                    {department.positions.map((position) => (
+                                        <span
+                                            key={position.id}
+                                            className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 py-1 pl-3 pr-1.5 text-xs font-medium text-text"
+                                        >
+                                            {position.name}
+                                            <button
+                                                type="button"
+                                                onClick={() => setDeleteTarget(position)}
+                                                className="rounded-full p-0.5 text-text-muted transition-colors hover:bg-danger/10 hover:text-danger"
+                                                aria-label={`Remove ${position.name}`}
+                                            >
+                                                <X className="h-3 w-3" />
+                                            </button>
+                                        </span>
+                                    ))}
+                                </div>
+                            )}
+
+                            <AddPositionForm departmentId={department.id} />
+                        </motion.div>
+                    ))}
+                </div>
+            )}
 
             <ConfirmDialog
                 open={Boolean(deleteTarget)}
