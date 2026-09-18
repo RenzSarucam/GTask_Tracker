@@ -3,7 +3,9 @@
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MyTasksController;
+use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TeamController;
 use App\Http\Controllers\UserController;
@@ -28,7 +30,11 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/team', TeamController::class)->name('team');
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::get('/reports', fn () => Inertia::render('Reports'))->name('reports');
-    Route::get('/settings', fn () => Inertia::render('Settings'))->name('settings');
+
+    Route::get('/settings', SettingsController::class)->name('settings');
+    Route::post('/positions', [PositionController::class, 'store'])->name('positions.store');
+    Route::patch('/positions/{position}', [PositionController::class, 'update'])->name('positions.update');
+    Route::delete('/positions/{position}', [PositionController::class, 'destroy'])->name('positions.destroy');
 });
 
 Route::middleware('auth')->group(function () {

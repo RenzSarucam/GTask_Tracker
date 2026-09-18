@@ -11,7 +11,8 @@ Internal task tracker for the ICT/R&D team of DSG Son's Group Inc. / GaisanoMall
 - Kanban board with drag-and-drop, persisted server-side
 - Task create/edit/delete via modal (title, description, department, priority, status, due date, assignees, progress)
 - My Tasks table with search and status/priority filters
-- Team page with per-user assigned-task counts and (admin-only) role/active-status management
+- Team page with per-user assigned-task counts and (admin-only) role/position/active-status management
+- Positions (job titles) scoped per department, managed from Settings (admin-only)
 - Role-based access enforced server-side via Policies — not just hidden in the UI
 
 ### Roles

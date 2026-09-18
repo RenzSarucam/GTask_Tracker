@@ -26,8 +26,9 @@ class User extends Authenticatable implements MustVerifyEmail
     /**
      * The attributes that are mass assignable.
      *
-     * Intentionally excludes `role`, `department_id`, `employee_id`, and
-     * `is_active` — these are privileged/admin-controlled fields and must
+     * Intentionally excludes `role`, `department_id`, `position_id`,
+     * `employee_id`, and `is_active` — these are privileged/admin-controlled
+     * fields and must
      * only ever be set via explicit property assignment in trusted code
      * (seeders, admin-only controllers), never from raw request input.
      *
@@ -68,6 +69,11 @@ class User extends Authenticatable implements MustVerifyEmail
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+
+    public function position(): BelongsTo
+    {
+        return $this->belongsTo(Position::class);
     }
 
     public function createdTasks(): HasMany

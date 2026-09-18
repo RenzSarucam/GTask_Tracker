@@ -1,0 +1,110 @@
+import ConfirmDialog from '@/Components/ConfirmDialog';
+import { router, useForm } from '@inertiajs/react';
+import { motion } from 'framer-motion';
+import { Plus, X } from 'lucide-react';
+import { useState } from 'react';
+
+function AddPositionForm({ departmentId }) {
+    const { data, setData, post, processing, errors, reset } = useForm({
+        department_id: departmentId,
+        name: '',
+    });
+
+    function submit(e) {
+        e.preventDefault();
+        post(route('positions.store'), {
+            preserveScroll: true,
+            onSuccess: () => reset('name'),
+        });
+    }
+
+    return (
+        <form onSubmit={submit} className="mt-3 flex gap-2">
+            <div className="flex-1">
+                <input
+                    type="text"
+                    value={data.name}
+                    onChange={(e) => setData('name', e.target.value)}
+                    placeholder="Add a position..."
+                    className="w-full rounded-input border border-border bg-surface-2 px-3 py-2 text-sm text-text placeholder-text-muted transition-all duration-200 focus:border-primary focus:shadow-glow focus:outline-none"
+                />
+                {errors.name && <p className="mt-1 text-xs text-danger">{errors.name}</p>}
+            </div>
+            <button
+                type="submit"
+                disabled={processing || !data.name.trim()}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-input bg-primary px-3 py-2 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-glow disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+            >
+                <Plus className="h-4 w-4" />
+                Add
+            </button>
+        </form>
+    );
+}
+
+export default function PositionsManager({ departments }) {
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [deleting, setDeleting] = useState(false);
+
+    function confirmDelete() {
+        setDeleting(true);
+        router.delete(route('positions.destroy', deleteTarget.id), {
+            preserveScroll: true,
+            onFinish: () => {
+                setDeleting(false);
+                setDeleteTarget(null);
+            },
+        });
+    }
+
+    return (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+            {departments.map((department, i) => (
+                <motion.div
+                    key={department.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: i * 0.05, duration: 0.25 }}
+                    className="rounded-card border border-border bg-surface p-5"
+                >
+                    <h3 className="text-sm font-semibold text-text">{department.name}</h3>
+
+                    {department.positions.length === 0 ? (
+                        <p className="mt-2 text-xs text-text-muted">No positions yet.</p>
+                    ) : (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                            {department.positions.map((position) => (
+                                <span
+                                    key={position.id}
+                                    className="inline-flex items-center gap-1.5 rounded-full bg-surface-2 py-1 pl-3 pr-1.5 text-xs font-medium text-text"
+                                >
+                                    {position.name}
+                                    <button
+                                        type="button"
+                                        onClick={() => setDeleteTarget(position)}
+                                        className="rounded-full p-0.5 text-text-muted transition-colors hover:bg-danger/10 hover:text-danger"
+                                        aria-label={`Remove ${position.name}`}
+                                    >
+                                        <X className="h-3 w-3" />
+                                    </button>
+                                </span>
+                            ))}
+                        </div>
+                    )}
+
+                    <AddPositionForm departmentId={department.id} />
+                </motion.div>
+            ))}
+
+            <ConfirmDialog
+                open={Boolean(deleteTarget)}
+                onClose={() => setDeleteTarget(null)}
+                onConfirm={confirmDelete}
+                processing={deleting}
+                title="Remove this position?"
+                message={`"${deleteTarget?.name}" will be removed. Team members currently holding it will have no position assigned.`}
+                confirmLabel="Remove"
+            />
+        </div>
+    );
+}

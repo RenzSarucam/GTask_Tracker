@@ -33,7 +33,7 @@ function avatarColor(id) {
     return AVATAR_COLORS[id % AVATAR_COLORS.length];
 }
 
-export default function Team({ members, canManage }) {
+export default function Team({ members, positionsByDepartment, canManage }) {
     const [pendingId, setPendingId] = useState(null);
 
     function changeRole(member, role) {
@@ -42,6 +42,15 @@ export default function Team({ members, canManage }) {
         router.patch(
             route('users.update', member.id),
             { role },
+            { preserveScroll: true, onFinish: () => setPendingId(null) },
+        );
+    }
+
+    function changePosition(member, positionId) {
+        setPendingId(member.id);
+        router.patch(
+            route('users.update', member.id),
+            { position_id: positionId || null },
             { preserveScroll: true, onFinish: () => setPendingId(null) },
         );
     }
@@ -114,6 +123,38 @@ export default function Team({ members, canManage }) {
                                 </div>
                             )}
                         </div>
+
+                        {(() => {
+                            const availablePositions = positionsByDepartment?.[member.department_id] ?? [];
+
+                            if (canManage && !member.is_self && availablePositions.length > 0) {
+                                return (
+                                    <select
+                                        value={member.position_id ?? ''}
+                                        disabled={pendingId === member.id}
+                                        onChange={(e) => changePosition(member, e.target.value)}
+                                        className="mt-3 w-full rounded-input border border-border bg-surface-2 px-2.5 py-1.5 text-xs text-text transition-colors focus:border-primary focus:outline-none disabled:opacity-50"
+                                    >
+                                        <option value="">No position</option>
+                                        {availablePositions.map((p) => (
+                                            <option key={p.id} value={p.id}>
+                                                {p.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                );
+                            }
+
+                            if (member.position) {
+                                return (
+                                    <p className="mt-3 text-xs font-medium text-text-muted">
+                                        {member.position}
+                                    </p>
+                                );
+                            }
+
+                            return null;
+                        })()}
 
                         <div className="mt-4 flex items-center justify-between">
                             {canManage && !member.is_self ? (
