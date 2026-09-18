@@ -1,15 +1,32 @@
 <?php
 
+use App\Http\Controllers\BoardController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\TaskController;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', function () {
     return redirect()->route(auth()->check() ? 'dashboard' : 'login');
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/my-tasks', MyTasksController::class)->name('my-tasks');
+    Route::get('/board', BoardController::class)->name('board');
+
+    Route::post('/tasks', [TaskController::class, 'store'])->name('tasks.store');
+    Route::patch('/tasks/{task}', [TaskController::class, 'update'])->name('tasks.update');
+    Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])->name('tasks.destroy');
+    Route::patch('/tasks/{task}/move', [TaskController::class, 'move'])->name('tasks.move');
+
+    Route::get('/calendar', fn () => Inertia::render('Calendar'))->name('calendar');
+    Route::get('/team', fn () => Inertia::render('Team'))->name('team');
+    Route::get('/reports', fn () => Inertia::render('Reports'))->name('reports');
+    Route::get('/settings', fn () => Inertia::render('Settings'))->name('settings');
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
