@@ -1,8 +1,49 @@
 import ConfirmDialog from '@/Components/ConfirmDialog';
 import { router, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Plus, X } from 'lucide-react';
+import { Building2, Plus, X } from 'lucide-react';
 import { useState } from 'react';
+
+function AddDepartmentForm() {
+    const { data, setData, post, processing, errors, reset } = useForm({ name: '' });
+
+    function submit(e) {
+        e.preventDefault();
+        post(route('departments.store'), {
+            preserveScroll: true,
+            onSuccess: () => reset('name'),
+        });
+    }
+
+    return (
+        <div className="mb-4 rounded-card border border-dashed border-border bg-surface p-5">
+            <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-text-muted" />
+                <h3 className="text-sm font-semibold text-text">New department</h3>
+            </div>
+            <form onSubmit={submit} className="mt-3 flex max-w-md gap-2">
+                <div className="flex-1">
+                    <input
+                        type="text"
+                        value={data.name}
+                        onChange={(e) => setData('name', e.target.value)}
+                        placeholder="e.g. Finance"
+                        className="w-full rounded-input border border-border bg-surface-2 px-3 py-2 text-sm text-text placeholder-text-muted transition-all duration-200 focus:border-primary focus:shadow-glow focus:outline-none"
+                    />
+                    {errors.name && <p className="mt-1 text-xs text-danger">{errors.name}</p>}
+                </div>
+                <button
+                    type="submit"
+                    disabled={processing || !data.name.trim()}
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-input bg-primary px-3 py-2 text-sm font-medium text-white transition-all duration-200 hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-glow disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+                >
+                    <Plus className="h-4 w-4" />
+                    Add department
+                </button>
+            </form>
+        </div>
+    );
+}
 
 function AddPositionForm({ departmentId }) {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -58,8 +99,11 @@ export default function PositionsManager({ departments }) {
     }
 
     return (
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {departments.map((department, i) => (
+        <div>
+            <AddDepartmentForm />
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                {departments.map((department, i) => (
                 <motion.div
                     key={department.id}
                     initial={{ opacity: 0, y: 12 }}
@@ -94,7 +138,8 @@ export default function PositionsManager({ departments }) {
 
                     <AddPositionForm departmentId={department.id} />
                 </motion.div>
-            ))}
+                ))}
+            </div>
 
             <ConfirmDialog
                 open={Boolean(deleteTarget)}

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\MyTasksController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
@@ -32,6 +33,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports', fn () => Inertia::render('Reports'))->name('reports');
 
     Route::get('/settings', SettingsController::class)->name('settings');
+    Route::post('/departments', [DepartmentController::class, 'store'])->name('departments.store');
     Route::post('/positions', [PositionController::class, 'store'])->name('positions.store');
     Route::patch('/positions/{position}', [PositionController::class, 'update'])->name('positions.update');
     Route::delete('/positions/{position}', [PositionController::class, 'destroy'])->name('positions.destroy');
