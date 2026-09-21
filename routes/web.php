@@ -42,6 +42,7 @@ Route::middleware(['auth', 'verified', 'approved'])->group(function () {
 
     Route::get('/calendar', fn () => Inertia::render('Calendar'))->name('calendar');
     Route::get('/team', TeamController::class)->name('team');
+    Route::post('/users', [UserController::class, 'store'])->name('users.store');
     Route::patch('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     Route::get('/reports', fn () => Inertia::render('Reports'))->name('reports');

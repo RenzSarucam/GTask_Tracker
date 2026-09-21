@@ -89,6 +89,7 @@ class TeamController extends Controller
             'departments' => $departments,
             'pendingApprovals' => $pendingApprovals,
             'canManage' => $canManage,
+            'status' => session('status'),
         ]);
     }
 }

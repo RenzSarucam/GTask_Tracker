@@ -11,6 +11,7 @@ export default function Topbar({
     onViewChange,
     onFilterClick,
     onNewTask,
+    newTaskLabel = 'New Task',
     onMenuClick,
 }) {
     return (
@@ -99,7 +100,7 @@ export default function Topbar({
                             className="shrink-0 whitespace-nowrap px-4 py-2"
                         >
                             <Plus className="h-4 w-4 shrink-0" />
-                            <span className="hidden sm:inline">New Task</span>
+                            <span className="hidden sm:inline">{newTaskLabel}</span>
                         </Button>
                     )}
                 </div>

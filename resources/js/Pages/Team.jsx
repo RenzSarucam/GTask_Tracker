@@ -1,6 +1,8 @@
+import AddMemberModal from '@/Components/Team/AddMemberModal';
 import PendingApprovalCard from '@/Components/Team/PendingApprovalCard';
 import ConfirmDialog from '@/Components/ui/ConfirmDialog';
 import Select from '@/Components/ui/Select';
+import { useRegisterTopbar } from '@/Contexts/TopbarContext';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
@@ -42,11 +44,24 @@ function avatarColor(id) {
     return AVATAR_COLORS[id % AVATAR_COLORS.length];
 }
 
-export default function Team({ members, positionsByDepartment, departments, pendingApprovals, canManage }) {
+export default function Team({
+    members,
+    positionsByDepartment,
+    departments,
+    pendingApprovals,
+    canManage,
+    status,
+}) {
     const [pendingId, setPendingId] = useState(null);
     const [deleteTarget, setDeleteTarget] = useState(null);
     const [deleteError, setDeleteError] = useState(null);
     const [deleting, setDeleting] = useState(false);
+    const [addMemberOpen, setAddMemberOpen] = useState(false);
+
+    useRegisterTopbar({
+        onNewTask: canManage ? () => setAddMemberOpen(true) : undefined,
+        newTaskLabel: 'Add member',
+    });
 
     function changeRole(member, role) {
         if (role === member.role) return;
@@ -91,6 +106,12 @@ export default function Team({ members, positionsByDepartment, departments, pend
     return (
         <>
             <Head title="Team" />
+
+            {status && (
+                <div className="mb-6 rounded-input border border-success/30 bg-success/10 px-4 py-2.5 text-sm font-medium text-success">
+                    {status}
+                </div>
+            )}
 
             {canManage && pendingApprovals?.length > 0 && (
                 <div className="mb-6">
@@ -252,6 +273,12 @@ export default function Team({ members, positionsByDepartment, departments, pend
                     </motion.div>
                 ))}
             </motion.div>
+
+            <AddMemberModal
+                open={addMemberOpen}
+                onClose={() => setAddMemberOpen(false)}
+                departments={departments}
+            />
 
             <ConfirmDialog
                 open={Boolean(deleteTarget)}
