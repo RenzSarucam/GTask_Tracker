@@ -31,15 +31,29 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $user = $request->user();
+        $canSeeApprovals = $user && $user->isAdmin() && $user->isApproved();
 
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $user,
             ],
-            'pendingApprovalsCount' => $user && $user->isAdmin() && $user->isApproved()
+            'pendingApprovalsCount' => $canSeeApprovals
                 ? fn () => User::where('account_status', User::STATUS_PENDING)->count()
                 : 0,
+            'pendingApprovalsPreview' => $canSeeApprovals
+                ? fn () => User::where('account_status', User::STATUS_PENDING)
+                    ->with('department:id,name')
+                    ->orderBy('created_at')
+                    ->limit(5)
+                    ->get(['id', 'name', 'email', 'department_id', 'requested_department_name'])
+                    ->map(fn (User $applicant) => [
+                        'id' => $applicant->id,
+                        'name' => $applicant->name,
+                        'email' => $applicant->email,
+                        'department' => $applicant->department?->name ?? $applicant->requested_department_name,
+                    ])
+                : [],
         ];
     }
 }

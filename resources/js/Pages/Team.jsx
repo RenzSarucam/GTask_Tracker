@@ -273,7 +273,7 @@ export default function Team({ members, positionsByDepartment, departments, pend
 }
 
 Team.layout = (page) => (
-    <AuthenticatedLayout title="Team" subtitle="Everyone on the ICT/R&D team">
+    <AuthenticatedLayout title="Team" subtitle="Everyone across all departments">
         {page}
     </AuthenticatedLayout>
 );
