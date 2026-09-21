@@ -46,4 +46,27 @@ class UserController extends Controller
 
         return back();
     }
+
+    /**
+     * Admin-only: permanently remove a user.
+     *
+     * Tasks the user created cascade-delete at the database level, so this
+     * is blocked outright if they've created any — deactivating is the
+     * right move for someone leaving the team, and outright deletion is
+     * meant for mistaken/duplicate accounts that never accumulated data.
+     */
+    public function destroy(Request $request, User $user): RedirectResponse
+    {
+        $this->authorize('delete', $user);
+
+        if ($user->createdTasks()->exists()) {
+            return back()->withErrors([
+                'delete' => "Can't delete: this user has created tasks. Deactivate the account instead, or reassign/delete their tasks first.",
+            ]);
+        }
+
+        $user->delete();
+
+        return back();
+    }
 }

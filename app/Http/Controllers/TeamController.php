@@ -17,7 +17,7 @@ class TeamController extends Controller
         $members = User::query()
             ->where('account_status', User::STATUS_APPROVED)
             ->with(['department:id,name', 'position:id,name,department_id'])
-            ->withCount('tasks')
+            ->withCount(['tasks', 'createdTasks'])
             ->orderBy('name')
             ->get()
             ->map(fn (User $user) => [
@@ -32,6 +32,7 @@ class TeamController extends Controller
                 'position_id' => $user->position_id,
                 'position' => $user->position?->name,
                 'tasks_count' => $user->tasks_count,
+                'created_tasks_count' => $user->created_tasks_count,
                 'is_self' => $user->id === $request->user()->id,
             ]);
 

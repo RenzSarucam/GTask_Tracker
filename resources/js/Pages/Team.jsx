@@ -3,7 +3,7 @@ import Select from '@/Components/ui/Select';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Briefcase, ListChecks, ShieldCheck, UserCheck } from 'lucide-react';
+import { Briefcase, ListChecks, ShieldCheck, Trash2, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 
 const ROLE_OPTIONS = [
@@ -70,6 +70,25 @@ export default function Team({ members, positionsByDepartment, departments, pend
             { is_active: !member.is_active },
             { preserveScroll: true, onFinish: () => setPendingId(null) },
         );
+    }
+
+    function deleteMember(member) {
+        if (
+            !confirm(
+                `Permanently delete ${member.name}? This can't be undone. Consider Deactivate instead if you might need this account again.`,
+            )
+        ) {
+            return;
+        }
+
+        setPendingId(member.id);
+        router.delete(route('users.destroy', member.id), {
+            preserveScroll: true,
+            onError: (errors) => {
+                if (errors.delete) alert(errors.delete);
+            },
+            onFinish: () => setPendingId(null),
+        });
     }
 
     return (
@@ -205,14 +224,29 @@ export default function Team({ members, positionsByDepartment, departments, pend
                             )}
 
                             {canManage && !member.is_self && (
-                                <button
-                                    type="button"
-                                    disabled={pendingId === member.id}
-                                    onClick={() => toggleActive(member)}
-                                    className="text-xs font-medium text-text-muted transition-colors hover:text-text disabled:opacity-50"
-                                >
-                                    {member.is_active ? 'Deactivate' : 'Activate'}
-                                </button>
+                                <div className="flex items-center gap-3">
+                                    <button
+                                        type="button"
+                                        disabled={pendingId === member.id}
+                                        onClick={() => toggleActive(member)}
+                                        className="text-xs font-medium text-text-muted transition-colors hover:text-text disabled:opacity-50"
+                                    >
+                                        {member.is_active ? 'Deactivate' : 'Activate'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        disabled={pendingId === member.id}
+                                        onClick={() => deleteMember(member)}
+                                        title={
+                                            member.created_tasks_count > 0
+                                                ? "Created tasks — can't be deleted until those are reassigned or removed"
+                                                : 'Delete permanently'
+                                        }
+                                        className="text-text-muted transition-colors hover:text-danger disabled:opacity-50"
+                                    >
+                                        <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                </div>
                             )}
                         </div>
                     </motion.div>
