@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use App\Notifications\OtpVerificationNotification;
+use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,10 +11,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Hash;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
+    /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
     public const ROLE_ADMIN = 'admin';
@@ -50,6 +53,7 @@ class User extends Authenticatable implements MustVerifyEmail
     protected $hidden = [
         'password',
         'remember_token',
+        'otp_code',
     ];
 
     /**
@@ -61,9 +65,44 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return [
             'email_verified_at' => 'datetime',
+            'otp_expires_at' => 'datetime',
             'password' => 'hashed',
             'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Generate a fresh 6-digit OTP, store its hash, and email it to the user.
+     * Overrides Laravel's default link-based verification notification.
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $code = (string) random_int(100000, 999999);
+
+        $this->forceFill([
+            'otp_code' => Hash::make($code),
+            'otp_expires_at' => now()->addMinutes(10),
+        ])->save();
+
+        $this->notify(new OtpVerificationNotification($code));
+    }
+
+    public function verifyOtp(string $code): bool
+    {
+        if (! $this->otp_code || ! $this->otp_expires_at || $this->otp_expires_at->isPast()) {
+            return false;
+        }
+
+        if (! Hash::check($code, $this->otp_code)) {
+            return false;
+        }
+
+        $this->forceFill([
+            'otp_code' => null,
+            'otp_expires_at' => null,
+        ])->save();
+
+        return true;
     }
 
     public function department(): BelongsTo
