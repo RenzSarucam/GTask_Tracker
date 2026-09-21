@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -29,11 +30,16 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+
         return [
             ...parent::share($request),
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user,
             ],
+            'pendingApprovalsCount' => $user && $user->isAdmin() && $user->isApproved()
+                ? fn () => User::where('account_status', User::STATUS_PENDING)->count()
+                : 0,
         ];
     }
 }

@@ -2,13 +2,17 @@ import PasswordStrengthMeter from '@/Components/Auth/PasswordStrengthMeter';
 import Button from '@/Components/ui/Button';
 import Checkbox from '@/Components/ui/Checkbox';
 import FloatingInput from '@/Components/ui/FloatingInput';
+import SelectOrCreate from '@/Components/ui/SelectOrCreate';
 import AuthSplitLayout from '@/Layouts/AuthSplitLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { Eye, EyeOff } from 'lucide-react';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
-export default function Register() {
+const inputClass =
+    'w-full rounded-input border border-border bg-surface-2 px-3 py-2.5 text-sm text-text hover:border-primary/50';
+
+export default function Register({ departments = [] }) {
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirm, setShowConfirm] = useState(false);
     const [agreed, setAgreed] = useState(false);
@@ -19,7 +23,16 @@ export default function Register() {
         email: '',
         password: '',
         password_confirmation: '',
+        department_id: '',
+        new_department_name: '',
+        position_id: '',
+        new_position_name: '',
     });
+
+    const availablePositions = useMemo(() => {
+        const department = departments.find((d) => String(d.id) === String(data.department_id));
+        return department?.positions ?? [];
+    }, [departments, data.department_id]);
 
     const submit = (e) => {
         e.preventDefault();
@@ -80,6 +93,66 @@ export default function Register() {
                         error={errors.email}
                         onChange={(e) => setData('email', e.target.value)}
                     />
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div>
+                            <label className="mb-1.5 block text-xs font-medium text-text-muted">
+                                Department
+                            </label>
+                            <SelectOrCreate
+                                options={departments.map((d) => ({ value: d.id, label: d.name }))}
+                                value={data.department_id}
+                                onChange={(v) => {
+                                    setData((prev) => ({
+                                        ...prev,
+                                        department_id: v,
+                                        position_id: '',
+                                    }));
+                                }}
+                                newValue={data.new_department_name}
+                                onNewValueChange={(v) => {
+                                    setData((prev) => ({
+                                        ...prev,
+                                        new_department_name: v,
+                                        position_id: '',
+                                    }));
+                                }}
+                                placeholder="Select department"
+                                newPlaceholder="e.g. Marketing"
+                                addNewLabel="+ Not listed? Add it"
+                                buttonClassName={inputClass}
+                            />
+                            {(errors.department_id || errors.new_department_name) && (
+                                <p className="mt-1.5 text-xs text-danger">
+                                    {errors.department_id || errors.new_department_name}
+                                </p>
+                            )}
+                        </div>
+
+                        <div>
+                            <label className="mb-1.5 block text-xs font-medium text-text-muted">
+                                Position <span className="text-text-muted/60">(optional)</span>
+                            </label>
+                            <SelectOrCreate
+                                options={availablePositions.map((p) => ({ value: p.id, label: p.name }))}
+                                value={data.position_id}
+                                onChange={(v) => setData('position_id', v)}
+                                newValue={data.new_position_name}
+                                onNewValueChange={(v) => setData('new_position_name', v)}
+                                placeholder="Select position"
+                                newPlaceholder="e.g. Web Developer"
+                                addNewLabel="+ Not listed? Add it"
+                                buttonClassName={inputClass}
+                            />
+                            {errors.position_id && (
+                                <p className="mt-1.5 text-xs text-danger">{errors.position_id}</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <p className="-mt-2 text-xs text-text-muted">
+                        A new department/position is created once an admin approves your account.
+                    </p>
 
                     <div>
                         <FloatingInput

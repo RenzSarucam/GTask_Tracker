@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\AccountApprovalController;
 use App\Http\Controllers\BoardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\MyTasksController;
+use App\Http\Controllers\PendingApprovalController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingsController;
@@ -18,6 +20,13 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/pending-approval', PendingApprovalController::class)->name('approval.pending');
+});
+
+Route::middleware(['auth', 'verified', 'approved'])->group(function () {
+    Route::post('/users/{user}/approve', [AccountApprovalController::class, 'approve'])->name('users.approve');
+    Route::post('/users/{user}/reject', [AccountApprovalController::class, 'reject'])->name('users.reject');
+
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/my-tasks', MyTasksController::class)->name('my-tasks');
     Route::get('/board', BoardController::class)->name('board');

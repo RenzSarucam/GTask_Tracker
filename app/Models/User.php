@@ -26,6 +26,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public const ROLES = [self::ROLE_ADMIN, self::ROLE_MANAGER, self::ROLE_STAFF];
 
+    public const STATUS_PENDING = 'pending';
+
+    public const STATUS_APPROVED = 'approved';
+
+    public const STATUS_REJECTED = 'rejected';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -43,6 +49,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'name',
         'email',
         'password',
+        'requested_department_name',
+        'requested_position_name',
     ];
 
     /**
@@ -138,5 +146,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isStaff(): bool
     {
         return $this->role === self::ROLE_STAFF;
+    }
+
+    public function isPendingApproval(): bool
+    {
+        return $this->account_status === self::STATUS_PENDING;
+    }
+
+    public function isApproved(): bool
+    {
+        return $this->account_status === self::STATUS_APPROVED;
     }
 }

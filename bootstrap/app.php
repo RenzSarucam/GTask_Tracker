@@ -17,7 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             \App\Http\Middleware\SecurityHeaders::class,
         ]);
 
-        //
+        $middleware->alias([
+            'approved' => \App\Http\Middleware\EnsureAccountIsApproved::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

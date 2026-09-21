@@ -15,6 +15,7 @@ class TeamController extends Controller
         $this->authorize('viewAny', User::class);
 
         $members = User::query()
+            ->where('account_status', User::STATUS_APPROVED)
             ->with(['department:id,name', 'position:id,name,department_id'])
             ->withCount('tasks')
             ->orderBy('name')
@@ -46,10 +47,47 @@ class TeamController extends Controller
                 ]),
             ]);
 
+        $canManage = $request->user()->isAdmin();
+
+        $pendingApprovals = $canManage
+            ? User::query()
+                ->where('account_status', User::STATUS_PENDING)
+                ->with(['department:id,name', 'position:id,name'])
+                ->orderBy('created_at')
+                ->get()
+                ->map(fn (User $user) => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'department_id' => $user->department_id,
+                    'department' => $user->department?->name,
+                    'requested_department_name' => $user->requested_department_name,
+                    'position_id' => $user->position_id,
+                    'position' => $user->position?->name,
+                    'requested_position_name' => $user->requested_position_name,
+                    'created_at' => $user->created_at,
+                ])
+            : [];
+
+        $departments = Department::query()
+            ->with(['positions' => fn ($q) => $q->orderBy('name')])
+            ->orderBy('name')
+            ->get(['id', 'name'])
+            ->map(fn (Department $department) => [
+                'id' => $department->id,
+                'name' => $department->name,
+                'positions' => $department->positions->map(fn ($p) => [
+                    'id' => $p->id,
+                    'name' => $p->name,
+                ]),
+            ]);
+
         return Inertia::render('Team', [
             'members' => $members,
             'positionsByDepartment' => $positionsByDepartment,
-            'canManage' => $request->user()->isAdmin(),
+            'departments' => $departments,
+            'pendingApprovals' => $pendingApprovals,
+            'canManage' => $canManage,
         ]);
     }
 }

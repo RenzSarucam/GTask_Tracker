@@ -20,25 +20,10 @@ class DepartmentController extends Controller
             'name' => ['required', 'string', 'max:255', 'unique:departments,name'],
         ]);
 
-        $validated['code'] = $this->generateCode($validated['name']);
+        $validated['code'] = Department::generateCode($validated['name']);
 
         Department::create($validated);
 
         return back();
-    }
-
-    private function generateCode(string $name): string
-    {
-        $base = strtoupper(preg_replace('/[^A-Za-z]/', '', $name));
-        $base = substr($base, 0, 6) ?: 'DEPT';
-
-        $code = $base;
-        $suffix = 1;
-
-        while (Department::where('code', $code)->exists()) {
-            $code = $base.$suffix++;
-        }
-
-        return $code;
     }
 }

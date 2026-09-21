@@ -1,5 +1,6 @@
 import Button from '@/Components/ui/Button';
-import { LayoutGrid, List, Menu, Plus, Search, SlidersHorizontal } from 'lucide-react';
+import { Link, usePage } from '@inertiajs/react';
+import { Bell, LayoutGrid, List, Menu, Plus, Search, SlidersHorizontal } from 'lucide-react';
 
 export default function Topbar({
     title,
@@ -12,6 +13,9 @@ export default function Topbar({
     onNewTask,
     onMenuClick,
 }) {
+    const { props } = usePage();
+    const pendingApprovalsCount = props.pendingApprovalsCount ?? 0;
+
     return (
         <header className="sticky top-0 z-20 border-b border-border bg-bg/80 px-4 py-4 backdrop-blur-md sm:px-6 lg:px-8">
             <div className="flex flex-wrap items-center gap-3">
@@ -87,6 +91,19 @@ export default function Topbar({
                                 <LayoutGrid className="h-4 w-4" />
                             </button>
                         </div>
+                    )}
+
+                    {pendingApprovalsCount > 0 && (
+                        <Link
+                            href={route('team')}
+                            className="relative shrink-0 rounded-input p-2 text-text-muted transition-colors hover:bg-surface-2 hover:text-text"
+                            aria-label={`${pendingApprovalsCount} pending approval${pendingApprovalsCount === 1 ? '' : 's'}`}
+                        >
+                            <Bell className="h-5 w-5" />
+                            <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-danger px-1 text-[10px] font-semibold leading-none text-white">
+                                {pendingApprovalsCount}
+                            </span>
+                        </Link>
                     )}
 
                     {onNewTask && (

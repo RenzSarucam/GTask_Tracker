@@ -1,8 +1,9 @@
+import PendingApprovalCard from '@/Components/Team/PendingApprovalCard';
 import Select from '@/Components/ui/Select';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import { Briefcase, ListChecks, ShieldCheck } from 'lucide-react';
+import { Briefcase, ListChecks, ShieldCheck, UserCheck } from 'lucide-react';
 import { useState } from 'react';
 
 const ROLE_OPTIONS = [
@@ -40,7 +41,7 @@ function avatarColor(id) {
     return AVATAR_COLORS[id % AVATAR_COLORS.length];
 }
 
-export default function Team({ members, positionsByDepartment, canManage }) {
+export default function Team({ members, positionsByDepartment, departments, pendingApprovals, canManage }) {
     const [pendingId, setPendingId] = useState(null);
 
     function changeRole(member, role) {
@@ -74,6 +75,26 @@ export default function Team({ members, positionsByDepartment, canManage }) {
     return (
         <>
             <Head title="Team" />
+
+            {canManage && pendingApprovals?.length > 0 && (
+                <div className="mb-6">
+                    <div className="mb-3 flex items-center gap-2">
+                        <UserCheck className="h-4 w-4 text-warning" />
+                        <h2 className="text-sm font-semibold text-text">
+                            Pending approvals ({pendingApprovals.length})
+                        </h2>
+                    </div>
+                    <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                        {pendingApprovals.map((applicant) => (
+                            <PendingApprovalCard
+                                key={applicant.id}
+                                applicant={applicant}
+                                departments={departments}
+                            />
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <motion.div
                 initial="hidden"

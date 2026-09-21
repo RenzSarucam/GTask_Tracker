@@ -32,4 +32,23 @@ class Department extends Model
     {
         return $this->hasMany(Position::class);
     }
+
+    /**
+     * Derive a short unique "code" from a department name, e.g. "ICT" -> ICT,
+     * "Human Resources" -> HUMANR (deduped with a numeric suffix on collision).
+     */
+    public static function generateCode(string $name): string
+    {
+        $base = strtoupper(preg_replace('/[^A-Za-z]/', '', $name));
+        $base = substr($base, 0, 6) ?: 'DEPT';
+
+        $code = $base;
+        $suffix = 1;
+
+        while (self::where('code', $code)->exists()) {
+            $code = $base.$suffix++;
+        }
+
+        return $code;
+    }
 }
