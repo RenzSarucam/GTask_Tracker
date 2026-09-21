@@ -1,11 +1,14 @@
-import InputError from '@/Components/InputError';
-import InputLabel from '@/Components/InputLabel';
-import PrimaryButton from '@/Components/PrimaryButton';
-import TextInput from '@/Components/TextInput';
-import GuestLayout from '@/Layouts/GuestLayout';
+import Button from '@/Components/ui/Button';
+import FloatingInput from '@/Components/ui/FloatingInput';
+import AuthSplitLayout from '@/Layouts/AuthSplitLayout';
 import { Head, useForm } from '@inertiajs/react';
+import { motion } from 'framer-motion';
+import { Eye, EyeOff } from 'lucide-react';
+import { useState } from 'react';
 
 export default function ConfirmPassword() {
+    const [showPassword, setShowPassword] = useState(false);
+
     const { data, setData, post, processing, errors, reset } = useForm({
         password: '',
     });
@@ -19,37 +22,58 @@ export default function ConfirmPassword() {
     };
 
     return (
-        <GuestLayout>
+        <>
             <Head title="Confirm Password" />
 
-            <div className="mb-4 text-sm text-gray-600">
-                This is a secure area of the application. Please confirm your
-                password before continuing.
-            </div>
+            <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+            >
+                <h1 className="text-2xl font-semibold text-text">Confirm password</h1>
+                <p className="mt-2 text-sm text-text-muted">
+                    This is a secure area. Please confirm your password before continuing.
+                </p>
 
-            <form onSubmit={submit}>
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
-
-                    <TextInput
+                <form onSubmit={submit} className="mt-8 space-y-5">
+                    <FloatingInput
                         id="password"
-                        type="password"
-                        name="password"
+                        type={showPassword ? 'text' : 'password'}
+                        label="Password"
                         value={data.password}
-                        className="mt-1 block w-full"
-                        isFocused={true}
+                        autoComplete="current-password"
+                        autoFocus
+                        error={errors.password}
                         onChange={(e) => setData('password', e.target.value)}
+                        rightSlot={
+                            <button
+                                type="button"
+                                tabIndex={-1}
+                                onClick={() => setShowPassword((v) => !v)}
+                                className="text-text-muted transition-colors hover:text-text"
+                                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                            >
+                                {showPassword ? (
+                                    <EyeOff className="h-4 w-4" />
+                                ) : (
+                                    <Eye className="h-4 w-4" />
+                                )}
+                            </button>
+                        }
                     />
 
-                    <InputError message={errors.password} className="mt-2" />
-                </div>
-
-                <div className="mt-4 flex items-center justify-end">
-                    <PrimaryButton className="ms-4" disabled={processing}>
+                    <Button
+                        type="submit"
+                        variant="primary"
+                        processing={processing}
+                        className="w-full py-3"
+                    >
                         Confirm
-                    </PrimaryButton>
-                </div>
-            </form>
-        </GuestLayout>
+                    </Button>
+                </form>
+            </motion.div>
+        </>
     );
 }
+
+ConfirmPassword.layout = (page) => <AuthSplitLayout>{page}</AuthSplitLayout>;
