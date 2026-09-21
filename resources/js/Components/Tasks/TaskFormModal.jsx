@@ -150,14 +150,26 @@ export default function TaskFormModal({
                                     />
                                 </div>
 
-                                <FloatingInput
-                                    id="due_date"
-                                    type="date"
-                                    label="Due date"
-                                    value={data.due_date ?? ''}
-                                    error={errors.due_date}
-                                    onChange={(e) => setData('due_date', e.target.value)}
-                                />
+                                <div>
+                                    <label
+                                        htmlFor="due_date"
+                                        className="mb-1.5 block text-xs font-medium text-text-muted"
+                                    >
+                                        Due date
+                                    </label>
+                                    <input
+                                        id="due_date"
+                                        type="date"
+                                        value={data.due_date ?? ''}
+                                        onChange={(e) => setData('due_date', e.target.value)}
+                                        className={`w-full rounded-input border bg-surface-2 px-3 py-2.5 text-sm text-text transition-all duration-200 focus:border-primary focus:shadow-glow focus:outline-none ${
+                                            errors.due_date ? 'border-danger' : 'border-border hover:border-primary/50'
+                                        }`}
+                                    />
+                                    {errors.due_date && (
+                                        <p className="mt-1.5 text-xs text-danger">{errors.due_date}</p>
+                                    )}
+                                </div>
                             </div>
 
                             <div>
