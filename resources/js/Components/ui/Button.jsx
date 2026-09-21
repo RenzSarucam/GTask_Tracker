@@ -8,6 +8,7 @@ const variantClasses = {
     secondary:
         'bg-surface-2 text-text border border-border hover:border-primary/60 disabled:opacity-60 disabled:cursor-not-allowed',
     ghost: 'bg-transparent text-text-muted hover:text-text hover:bg-surface-2 disabled:opacity-60',
+    danger: 'text-white bg-danger shadow-[0_0_0_1px_var(--danger)] disabled:opacity-60 disabled:cursor-not-allowed',
 };
 
 const Button = forwardRef(function Button(
@@ -32,7 +33,7 @@ const Button = forwardRef(function Button(
             whileTap={isDisabled ? undefined : { scale: 0.97 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
             disabled={isDisabled}
-            className={`group inline-flex items-center justify-center gap-2 rounded-input px-5 py-2.5 text-sm font-medium transition-shadow duration-200 hover:shadow-glow focus:outline-none focus-visible:shadow-glow ${variantClasses[variant]} ${className}`}
+            className={`group inline-flex items-center justify-center gap-2 rounded-input px-5 py-2.5 text-sm font-medium transition-shadow duration-200 focus:outline-none ${variant === 'danger' ? 'hover:shadow-[0_0_20px_-4px_rgba(239,68,68,0.55)]' : 'hover:shadow-glow focus-visible:shadow-glow'} ${variantClasses[variant]} ${className}`}
             {...props}
         >
             {variant === 'primary' && (

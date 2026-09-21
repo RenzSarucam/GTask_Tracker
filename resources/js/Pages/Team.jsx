@@ -1,4 +1,5 @@
 import PendingApprovalCard from '@/Components/Team/PendingApprovalCard';
+import ConfirmDialog from '@/Components/ui/ConfirmDialog';
 import Select from '@/Components/ui/Select';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
@@ -43,6 +44,9 @@ function avatarColor(id) {
 
 export default function Team({ members, positionsByDepartment, departments, pendingApprovals, canManage }) {
     const [pendingId, setPendingId] = useState(null);
+    const [deleteTarget, setDeleteTarget] = useState(null);
+    const [deleteError, setDeleteError] = useState(null);
+    const [deleting, setDeleting] = useState(false);
 
     function changeRole(member, role) {
         if (role === member.role) return;
@@ -72,22 +76,15 @@ export default function Team({ members, positionsByDepartment, departments, pend
         );
     }
 
-    function deleteMember(member) {
-        if (
-            !confirm(
-                `Permanently delete ${member.name}? This can't be undone. Consider Deactivate instead if you might need this account again.`,
-            )
-        ) {
-            return;
-        }
+    function confirmDelete() {
+        if (!deleteTarget) return;
 
-        setPendingId(member.id);
-        router.delete(route('users.destroy', member.id), {
+        setDeleting(true);
+        router.delete(route('users.destroy', deleteTarget.id), {
             preserveScroll: true,
-            onError: (errors) => {
-                if (errors.delete) alert(errors.delete);
-            },
-            onFinish: () => setPendingId(null),
+            onSuccess: () => setDeleteTarget(null),
+            onError: (errors) => setDeleteError(errors.delete ?? 'Something went wrong.'),
+            onFinish: () => setDeleting(false),
         });
     }
 
@@ -236,7 +233,10 @@ export default function Team({ members, positionsByDepartment, departments, pend
                                     <button
                                         type="button"
                                         disabled={pendingId === member.id}
-                                        onClick={() => deleteMember(member)}
+                                        onClick={() => {
+                                            setDeleteError(null);
+                                            setDeleteTarget(member);
+                                        }}
                                         title={
                                             member.created_tasks_count > 0
                                                 ? "Created tasks — can't be deleted until those are reassigned or removed"
@@ -252,6 +252,22 @@ export default function Team({ members, positionsByDepartment, departments, pend
                     </motion.div>
                 ))}
             </motion.div>
+
+            <ConfirmDialog
+                open={Boolean(deleteTarget)}
+                onClose={() => {
+                    setDeleteTarget(null);
+                    setDeleteError(null);
+                }}
+                onConfirm={confirmDelete}
+                processing={deleting}
+                confirmLabel="Delete permanently"
+                title={`Delete ${deleteTarget?.name ?? 'this member'}?`}
+                message={
+                    deleteError ??
+                    "This permanently removes their account and can't be undone. Consider Deactivate instead if you might need this account again."
+                }
+            />
         </>
     );
 }
