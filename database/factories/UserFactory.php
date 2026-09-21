@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
+ * @extends Factory<User>
  */
 class UserFactory extends Factory
 {
@@ -34,6 +35,12 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
+            // Match the DB column defaults explicitly: Eloquent's create()
+            // doesn't refetch generated defaults, so an in-memory instance
+            // used immediately (e.g. actingAs() in tests) would otherwise
+            // see these as null instead of the values MySQL assigns.
+            'is_active' => true,
+            'account_status' => User::STATUS_APPROVED,
         ];
     }
 

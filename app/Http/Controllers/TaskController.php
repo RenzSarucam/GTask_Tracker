@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreTaskRequest;
 use App\Http\Requests\UpdateTaskRequest;
 use App\Models\Task;
+use App\Models\User;
+use App\Notifications\TaskAssignedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -29,7 +31,8 @@ class TaskController extends Controller
             'created_by' => $request->user()->id,
         ]);
 
-        $task->assignees()->sync($assigneeIds);
+        $sync = $task->assignees()->sync($assigneeIds);
+        $this->notifyNewAssignees($task, $sync['attached'], $request->user());
 
         return back();
     }
@@ -43,13 +46,30 @@ class TaskController extends Controller
         $validated = $request->validated();
 
         if (array_key_exists('assignee_ids', $validated)) {
-            $task->assignees()->sync($validated['assignee_ids'] ?? []);
+            $sync = $task->assignees()->sync($validated['assignee_ids'] ?? []);
+            $this->notifyNewAssignees($task, $sync['attached'], $request->user());
             unset($validated['assignee_ids']);
         }
 
         $task->update($validated);
 
         return back();
+    }
+
+    /**
+     * Notify newly-assigned users, skipping whoever just made the change.
+     */
+    private function notifyNewAssignees(Task $task, array $attachedIds, User $actor): void
+    {
+        $recipientIds = array_diff($attachedIds, [$actor->id]);
+
+        if (empty($recipientIds)) {
+            return;
+        }
+
+        User::whereIn('id', $recipientIds)
+            ->get()
+            ->each(fn (User $user) => $user->notify(new TaskAssignedNotification($task, $actor)));
     }
 
     /**

@@ -32,6 +32,7 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
         $canSeeApprovals = $user && $user->isAdmin() && $user->isApproved();
+        $canSeeNotifications = $user && $user->isApproved();
 
         return [
             ...parent::share($request),
@@ -52,6 +53,21 @@ class HandleInertiaRequests extends Middleware
                         'name' => $applicant->name,
                         'email' => $applicant->email,
                         'department' => $applicant->department?->name ?? $applicant->requested_department_name,
+                    ])
+                : [],
+            'taskNotificationsCount' => $canSeeNotifications
+                ? fn () => $user->unreadNotifications()->count()
+                : 0,
+            'taskNotificationsPreview' => $canSeeNotifications
+                ? fn () => $user->unreadNotifications()
+                    ->latest()
+                    ->limit(5)
+                    ->get()
+                    ->map(fn ($notification) => [
+                        'id' => $notification->id,
+                        'task_title' => $notification->data['task_title'] ?? null,
+                        'assigned_by' => $notification->data['assigned_by'] ?? null,
+                        'created_at' => $notification->created_at,
                     ])
                 : [],
         ];

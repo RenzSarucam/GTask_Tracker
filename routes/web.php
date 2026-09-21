@@ -5,6 +5,7 @@ use App\Http\Controllers\BoardController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\MyTasksController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\PendingApprovalController;
 use App\Http\Controllers\PositionController;
 use App\Http\Controllers\ProfileController;
@@ -26,6 +27,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
 Route::middleware(['auth', 'verified', 'approved'])->group(function () {
     Route::post('/users/{user}/approve', [AccountApprovalController::class, 'approve'])->name('users.approve');
     Route::post('/users/{user}/reject', [AccountApprovalController::class, 'reject'])->name('users.reject');
+
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.readAll');
+    Route::post('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
 
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/my-tasks', MyTasksController::class)->name('my-tasks');
