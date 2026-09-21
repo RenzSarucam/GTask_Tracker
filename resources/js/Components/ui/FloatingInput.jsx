@@ -18,7 +18,11 @@ const FloatingInput = forwardRef(function FloatingInput(
     const generatedId = useId();
     const id = props.id || generatedId;
     const hasValue = value !== undefined && value !== null && String(value).length > 0;
-    const floated = focused || hasValue;
+    // Native date/time inputs always render their own placeholder segments
+    // (mm/dd/yyyy) regardless of the `placeholder` attribute, so the label
+    // must stay floated up top or it overlaps that text even when empty.
+    const alwaysFloated = type === 'date' || type === 'time' || type === 'datetime-local';
+    const floated = focused || hasValue || alwaysFloated;
 
     return (
         <div className={className}>
