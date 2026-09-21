@@ -2,6 +2,7 @@ import Modal from '@/Components/Modal';
 import Button from '@/Components/ui/Button';
 import Checkbox from '@/Components/ui/Checkbox';
 import FloatingInput from '@/Components/ui/FloatingInput';
+import Select from '@/Components/ui/Select';
 import { useForm } from '@inertiajs/react';
 import { Trash2, X } from 'lucide-react';
 import { useEffect } from 'react';
@@ -137,18 +138,16 @@ export default function TaskFormModal({
                                     <label className="mb-1.5 block text-xs font-medium text-text-muted">
                                         Department
                                     </label>
-                                    <select
+                                    <Select
                                         value={data.department_id}
-                                        onChange={(e) => setData('department_id', e.target.value)}
-                                        className="w-full rounded-input border border-border bg-surface-2 px-3 py-2.5 text-sm text-text transition-all duration-200 focus:border-primary focus:shadow-glow focus:outline-none"
-                                    >
-                                        <option value="">None</option>
-                                        {departments.map((d) => (
-                                            <option key={d.id} value={d.id}>
-                                                {d.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                        onChange={(v) => setData('department_id', v)}
+                                        placeholder="None"
+                                        options={[
+                                            { value: '', label: 'None' },
+                                            ...departments.map((d) => ({ value: d.id, label: d.name })),
+                                        ]}
+                                        buttonClassName="w-full rounded-input border border-border bg-surface-2 px-3 py-2.5 text-sm text-text hover:border-primary/50"
+                                    />
                                 </div>
 
                                 <FloatingInput

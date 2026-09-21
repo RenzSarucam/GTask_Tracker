@@ -1,5 +1,6 @@
 import ConfirmDialog from '@/Components/ConfirmDialog';
 import TaskFormModal from '@/Components/Tasks/TaskFormModal';
+import Select from '@/Components/ui/Select';
 import { useRegisterTopbar } from '@/Contexts/TopbarContext';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router, usePage } from '@inertiajs/react';
@@ -98,28 +99,31 @@ export default function MyTasks({ tasks, departments, assignableUsers, canCreate
                     >
                         <div className="flex flex-wrap items-center gap-3 rounded-card border border-border bg-surface p-4">
                             <SlidersHorizontal className="h-4 w-4 text-text-muted" />
-                            <select
+                            <Select
                                 value={statusFilter}
-                                onChange={(e) => setStatusFilter(e.target.value)}
-                                className="rounded-input border border-border bg-surface-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
-                            >
-                                <option value="">All statuses</option>
-                                {Object.entries(STATUS_LABELS).map(([value, label]) => (
-                                    <option key={value} value={value}>
-                                        {label}
-                                    </option>
-                                ))}
-                            </select>
-                            <select
+                                onChange={setStatusFilter}
+                                placeholder="All statuses"
+                                options={[
+                                    { value: '', label: 'All statuses' },
+                                    ...Object.entries(STATUS_LABELS).map(([value, label]) => ({
+                                        value,
+                                        label,
+                                    })),
+                                ]}
+                                buttonClassName="rounded-input border border-border bg-surface-2 px-3 py-2 text-sm text-text hover:border-primary/50"
+                            />
+                            <Select
                                 value={priorityFilter}
-                                onChange={(e) => setPriorityFilter(e.target.value)}
-                                className="rounded-input border border-border bg-surface-2 px-3 py-2 text-sm text-text focus:border-primary focus:outline-none"
-                            >
-                                <option value="">All priorities</option>
-                                <option value="low">Low</option>
-                                <option value="medium">Medium</option>
-                                <option value="high">High</option>
-                            </select>
+                                onChange={setPriorityFilter}
+                                placeholder="All priorities"
+                                options={[
+                                    { value: '', label: 'All priorities' },
+                                    { value: 'low', label: 'Low' },
+                                    { value: 'medium', label: 'Medium' },
+                                    { value: 'high', label: 'High' },
+                                ]}
+                                buttonClassName="rounded-input border border-border bg-surface-2 px-3 py-2 text-sm text-text hover:border-primary/50"
+                            />
                             {(statusFilter || priorityFilter) && (
                                 <button
                                     type="button"

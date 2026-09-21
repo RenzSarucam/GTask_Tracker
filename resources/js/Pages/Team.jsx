@@ -1,8 +1,15 @@
+import Select from '@/Components/ui/Select';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, router } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { Briefcase, ListChecks, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
+
+const ROLE_OPTIONS = [
+    { value: 'admin', label: 'Admin' },
+    { value: 'manager', label: 'Manager' },
+    { value: 'staff', label: 'Staff' },
+];
 
 const ROLE_STYLES = {
     admin: 'bg-primary/10 text-primary',
@@ -129,19 +136,22 @@ export default function Team({ members, positionsByDepartment, canManage }) {
 
                             if (canManage && !member.is_self && availablePositions.length > 0) {
                                 return (
-                                    <select
-                                        value={member.position_id ?? ''}
-                                        disabled={pendingId === member.id}
-                                        onChange={(e) => changePosition(member, e.target.value)}
-                                        className="mt-3 w-full rounded-input border border-border bg-surface-2 px-2.5 py-1.5 text-xs text-text transition-colors focus:border-primary focus:outline-none disabled:opacity-50"
-                                    >
-                                        <option value="">No position</option>
-                                        {availablePositions.map((p) => (
-                                            <option key={p.id} value={p.id}>
-                                                {p.name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <div className="mt-3">
+                                        <Select
+                                            value={member.position_id ?? ''}
+                                            disabled={pendingId === member.id}
+                                            onChange={(v) => changePosition(member, v)}
+                                            placeholder="No position"
+                                            options={[
+                                                { value: '', label: 'No position' },
+                                                ...availablePositions.map((p) => ({
+                                                    value: p.id,
+                                                    label: p.name,
+                                                })),
+                                            ]}
+                                            buttonClassName="w-full rounded-input border border-border bg-surface-2 px-2.5 py-1.5 text-xs text-text hover:border-primary/50"
+                                        />
+                                    </div>
                                 );
                             }
 
@@ -158,16 +168,13 @@ export default function Team({ members, positionsByDepartment, canManage }) {
 
                         <div className="mt-4 flex items-center justify-between">
                             {canManage && !member.is_self ? (
-                                <select
+                                <Select
                                     value={member.role}
                                     disabled={pendingId === member.id}
-                                    onChange={(e) => changeRole(member, e.target.value)}
-                                    className={`rounded-full border-0 px-2.5 py-1 text-xs font-medium capitalize focus:outline-none focus:ring-2 focus:ring-primary disabled:opacity-50 ${ROLE_STYLES[member.role]}`}
-                                >
-                                    <option value="admin">Admin</option>
-                                    <option value="manager">Manager</option>
-                                    <option value="staff">Staff</option>
-                                </select>
+                                    onChange={(v) => changeRole(member, v)}
+                                    options={ROLE_OPTIONS}
+                                    buttonClassName={`rounded-full px-2.5 py-1 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-primary ${ROLE_STYLES[member.role]}`}
+                                />
                             ) : (
                                 <span
                                     className={`rounded-full px-2.5 py-1 text-xs font-medium ${ROLE_STYLES[member.role]}`}
